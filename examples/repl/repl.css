@@ -1,0 +1,37 @@
+.container {
+    border-left: 1px solid #000000;
+    border-right: 1px solid #000000;
+    width: 550px;
+    position: relative;
+    margin: auto;
+    height: 100%;
+    overflow: hidden;
+}
+
+textarea {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #bbbbbb;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.err {
+    background-color: red;
+    color: white;
+}
+
+#status {
+    padding-left: 32px;
+}
+
+#out {
+    margin-top: 32px;
+}
