@@ -35,6 +35,10 @@
 			});
 		});
 
+		it('throws an exception when trying to parse an empty paren', function () {
+			expect(getAst.bind(null, '()')).toThrow(new Error('Unexpected empty ()'));
+		});
+
 		it('throws an exception when trying to parse a bad conditional', function () {
 			expect(getAst.bind(null, '(if)')).toThrow(new Error('if special form admits 3 parameters'));
 		});

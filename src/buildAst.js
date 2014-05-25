@@ -21,6 +21,9 @@
 					value: tree.token.value
 				};
 			case '(':
+				if (!tree.tree.length) {
+					throw new Error('Unexpected empty ()');
+				}
 				var formType = tree.tree[0].token.value;
 				if (subs[formType] !== undefined) {
 					if (subs[formType] !== tree.tree.length - 1) {
