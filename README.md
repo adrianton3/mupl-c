@@ -1,7 +1,9 @@
 mupl-c
 ======
 
-*Made Up Programming Language with continuations* is a simple, educational, scheme-like like language.
+*Made Up Programming Language with continuations* is a simple, educational, scheme-like language.
+
+Try it [here](http://madflame991.github.io/mupl-c/examples/repl/repl.html)!
 
 ###Syntax
 
