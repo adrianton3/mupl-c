@@ -7,7 +7,7 @@
 		var tokens = tokenizer(str);
 		var tree = espace.Parser.parse(tokens);
 		var ast = cps.buildAst(tree);
-		window.cps.evT(ast, callback); // ev
+		window.cps.evLT(ast, callback);
 	};
 
 	var getBundle = function () {
@@ -18,7 +18,7 @@
 		return bundle;
 	};
 
-	describe('ev', function () {
+	describe('ev-lazy', function () {
 		var bundle;
 		beforeEach(function () {
 			bundle = getBundle();
@@ -101,6 +101,30 @@
 				'(lambda cont' +
 				'(set! return cont (call return 123))))))', bundle.callback);
 			expect(bundle.data).toEqual(124);
+		});
+
+		it('evaluates bindings lazily', function () {
+			ev('(let infinite ' +
+				'(call ' +
+				'	(fun inf n (call inf 0)) ' +
+				'	0)' +
+				'123)', bundle.callback);
+			expect(bundle.data).toEqual(123);
+		});
+
+		it('evaluates function parameters lazily', function () {
+			ev('(call ' +
+				'	(lambda trap 123) ' +
+				'	(call (fun inf n (call inf 0)) 0))', bundle.callback);
+			expect(bundle.data).toEqual(123);
+		});
+
+		it('evaluates a complex program using myif', function () {
+			ev('(let myif (lambda cond (lambda then (lambda else (if cond then else)))) ' +
+				'(call (fun sum n ' +
+				'	(call (call (call myif n) (+ n (call sum (- n 1)))) 0)) ' +
+				'10))', bundle.callback);
+			expect(bundle.data).toEqual(55);
 		});
 	});
 })();
