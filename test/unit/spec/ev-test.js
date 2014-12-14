@@ -34,7 +34,7 @@
 			expect(bundle.data).toEqual(123 + 456);
 		});
 
-		it('evaluates a nested', function () {
+		it('evaluates a nested sum', function () {
 			ev('(+ (+ 12 34) (+ 56 78))', bundle.callback);
 			expect(bundle.data).toEqual(12 + 34 + 56 + 78);
 		});
