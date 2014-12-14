@@ -1,5 +1,5 @@
 (function () {
-	var Env = window.cps.Env;
+	'use strict';
 
 	function ev(e, env, cont) {
 		switch (e.type) {
@@ -89,23 +89,23 @@
 				break;
 			case 'call':
 				return function () {
-					return ev(e.calee, env, function (caleeValue) {
+					return ev(e.callee, env, function (calleeValue) {
 						return function () {
 							return ev(e.param, env, function (paramValue) {
-								if (caleeValue.type === 'cont') {
-									caleeValue.cont(paramValue); // not sure
+								if (calleeValue.type === 'cont') {
+									return calleeValue.cont(paramValue);
 								} else {
-									var newEnv = caleeValue.env;
+									var newEnv = calleeValue.env;
 
-									if (caleeValue.name) {
-										var funEntry = { key: caleeValue.name, value: caleeValue };
+									if (calleeValue.name) {
+										var funEntry = { key: calleeValue.name, value: calleeValue };
 										newEnv = newEnv.con(funEntry);
 									}
 
-									var paramEntry = { key: caleeValue.param, value: paramValue };
+									var paramEntry = { key: calleeValue.param, value: paramValue };
 									newEnv = newEnv.con(paramEntry);
 									return function () {
-										return ev(caleeValue.body, newEnv, cont);
+										return ev(calleeValue.body, newEnv, cont);
 									};
 								}
 							});
@@ -115,15 +115,15 @@
 				break;
 			case 'call/cc':
 				return function () {
-					return ev(e.calee, env, function (caleeValue) {
+					return ev(e.callee, env, function (calleeValue) {
 						var capturedCont = {
 							type: 'cont',
 							cont: cont
 						};
-						var newEntry = { key: caleeValue.param, value: capturedCont };
+						var newEntry = { key: calleeValue.param, value: capturedCont };
 						var newEnv = env.con(newEntry);
 						return function () {
-							return ev(caleeValue.body, newEnv, cont);
+							return ev(calleeValue.body, newEnv, cont);
 						};
 					});
 				};
@@ -134,7 +134,7 @@
 	}
 
 	function _ev(e, cont) {
-		var result = ev(e, Env.EMPTY, cont || function (value) {
+		var result = ev(e, window.cps.prelude, cont || function (value) {
 			console.log(value);
 		});
 

@@ -129,23 +129,23 @@
 				break;
 			case 'call':
 				return function () {
-					return ev(e.calee, env, function (caleeValue) {
-						if (caleeValue.type === 'cont') {
+					return ev(e.callee, env, function (calleeValue) {
+						if (calleeValue.type === 'cont') {
 							return function () {
 								return ev(e.param, env, function (paramValue) {
-									caleeValue.cont(paramValue); // not sure
+									calleeValue.cont(paramValue); // return ?
 								});
 							};
 						} else {
-							var newEnv = caleeValue.env;
+							var newEnv = calleeValue.env;
 
-							if (caleeValue.name) {
-								var funEntry = { key: caleeValue.name, value: caleeValue };
+							if (calleeValue.name) {
+								var funEntry = { key: calleeValue.name, value: calleeValue };
 								newEnv = newEnv.con(funEntry);
 							}
 
 							var paramEntry = {
-								key: caleeValue.param,
+								key: calleeValue.param,
 								value: delay(function (store) {
 									var tmp = ev(e.param, env, store);
 									while (tmp instanceof Function) {
@@ -155,7 +155,7 @@
 							};
 							newEnv = newEnv.con(paramEntry);
 							return function () {
-								return ev(caleeValue.body, newEnv, cont);
+								return ev(calleeValue.body, newEnv, cont);
 							};
 						}
 					});
@@ -163,15 +163,15 @@
 				break;
 			case 'call/cc':
 				return function () {
-					return ev(e.calee, env, function (caleeValue) {
+					return ev(e.callee, env, function (calleeValue) {
 						var capturedCont = {
 							type: 'cont',
 							cont: cont
 						};
-						var newEntry = { key: caleeValue.param, value: capturedCont };
+						var newEntry = { key: calleeValue.param, value: capturedCont };
 						var newEnv = env.con(newEntry);
 						return function () {
-							return ev(caleeValue.body, newEnv, cont);
+							return ev(calleeValue.body, newEnv, cont);
 						};
 					});
 				};
@@ -184,7 +184,7 @@
 	function _ev(e, cont) {
 		cont = cont || function (value) { console.log(value); };
 
-		var result = ev(e, Env.EMPTY, function (value) {
+		var result = ev(e, window.cps.prelude, function (value) {
 			cont(force(value));
 		});
 

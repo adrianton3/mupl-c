@@ -63,66 +63,64 @@
 		});
 
 		it('calls a function', function () {
-			ev('(call (lambda a a) 123)', bundle.callback);
+			ev('((lambda (a) a) 123)', bundle.callback);
 			expect(bundle.data).toEqual(123);
 		});
 
 		it('calls a nested function', function () {
-			ev('(call (call (lambda a (lambda b (+ a b))) 123) 456)', bundle.callback);
+			ev('((lambda (a b) (+ a b)) 123 456)', bundle.callback);
 			expect(bundle.data).toEqual(123 + 456);
 		});
 
 		it('calls with the current continuation', function () {
-			ev('(call/cc (lambda a (call a 123)))', bundle.callback);
+			ev('(call/cc (lambda (a) (a 123)))', bundle.callback);
 			expect(bundle.data).toEqual(123);
 		});
 
 		it('evaluates a complex program', function () {
-			ev('(call (fun sum n ' +
-				'(if n ' +
-				'(+ n (call sum (- n 1)))' +
-				'0))' +
+			ev('((fun sum (n) ' +
+				'	(if n ' +
+				'		(+ n (sum (- n 1))) ' +
+				'		0)) ' +
 				'10)', bundle.callback);
 			expect(bundle.data).toEqual(55);
 		});
 
 		it('has no bound for the call stack', function () {
-			ev('(call (fun count n ' +
-				'(if n ' +
-				'(call count (- n 1))' +
-				'567))' +
-				'100000)', bundle.callback);
+			ev('((fun count (n) ' +
+				'	(if n ' +
+				'		(count (- n 1))' +
+				'		567))' +
+				'20000)', bundle.callback);
 			expect(bundle.data).toEqual(567);
 		});
 
 		it('evaluates a complex call/cc program', function () {
 			ev('(let return 0 ' +
-				'(+ 1 (call/cc' +
-				'(lambda cont' +
-				'(set! return cont (call return 123))))))', bundle.callback);
+				'	(+ 1 (call/cc' +
+				'		(lambda (cont)' +
+				'			(set! return cont ' +
+				'				(return 123))))))', bundle.callback);
 			expect(bundle.data).toEqual(124);
 		});
 
 		it('evaluates bindings lazily', function () {
 			ev('(let infinite ' +
-				'(call ' +
-				'	(fun inf n (call inf 0)) ' +
-				'	0)' +
+				'	((fun inf (n) (inf 0)) 0) ' +
 				'123)', bundle.callback);
 			expect(bundle.data).toEqual(123);
 		});
 
 		it('evaluates function parameters lazily', function () {
-			ev('(call ' +
-				'	(lambda trap 123) ' +
-				'	(call (fun inf n (call inf 0)) 0))', bundle.callback);
+			ev('((lambda (trap) 123) ' +
+				'	((fun inf (n) (inf 0)) 0))', bundle.callback);
 			expect(bundle.data).toEqual(123);
 		});
 
 		it('evaluates a complex program using myif', function () {
-			ev('(let myif (lambda cond (lambda then (lambda else (if cond then else)))) ' +
-				'(call (fun sum n ' +
-				'	(call (call (call myif n) (+ n (call sum (- n 1)))) 0)) ' +
+			ev('(let myif (lambda (cond then else) (if cond then else)) ' +
+				'((fun sum (n) ' +
+				'	((myif n (+ n (sum (- n 1)))) 0)) ' +
 				'10))', bundle.callback);
 			expect(bundle.data).toEqual(55);
 		});

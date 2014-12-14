@@ -18,6 +18,10 @@
 	};
 
 	describe('astBuilder', function () {
+		beforeEach(function () {
+			jasmine.addMatchers(cpsTest.customMatchers);
+		});
+
 		it('builds an ast for a number', function () {
 			expect(getAst('123')).toEqual(number(123));
 		});
@@ -43,19 +47,61 @@
 			expect(getAst.bind(null, '(if)')).toThrow(new Error('if special form admits 3 parameters'));
 		});
 
-		it('builds an ast for a sum', function () {
-			expect(getAst('(+ 123 456)')).toEqual({
-				type: '+',
-				e1: number(123),
-				e2: number(456)
+		describe('lambda', function () {
+			it('builds an ast for an anonymous function with one parameter', function () {
+				expect(getAst('(lambda (x) 123)')).toEqual({
+					type: 'lambda',
+					param: 'x',
+					body: number(123)
+				});
+			});
+
+			it('builds an ast for an anonymous function with more parameters', function () {
+				expect(getAst('(lambda (x y) 123)')).toEqual({
+					type: 'lambda',
+					param: 'x',
+					body: {
+						type: 'lambda',
+						param: 'y',
+						body: number(123)
+					}
+				});
+			});
+
+			it('throws an error if parameter list is missing', function () {
+				expect(function () {
+					getAst('(lambda x 123)');
+				}).toThrowWithMessage('missing parameter list for anonymous function');
 			});
 		});
 
-		it('builds an ast for a difference', function () {
-			expect(getAst('(- 123 456)')).toEqual({
-				type: '-',
-				e1: number(123),
-				e2: number(456)
+		describe('fun', function () {
+			it('builds an ast for a function with one parameter', function () {
+				expect(getAst('(fun f (x) 123)')).toEqual({
+					type: 'fun',
+					name: 'f',
+					param: 'x',
+					body: number(123)
+				});
+			});
+
+			it('builds an ast for a function with more parameters', function () {
+				expect(getAst('(fun f (x y) 123)')).toEqual({
+					type: 'fun',
+					name: 'f',
+					param: 'x',
+					body: {
+						type: 'lambda',
+						param: 'y',
+						body: number(123)
+					}
+				});
+			});
+
+			it('throws an error if parameter list is missing', function () {
+				expect(function () {
+					getAst('(fun f x 123)');
+				}).toThrowWithMessage('missing parameter list for function');
 			});
 		});
 	});

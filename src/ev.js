@@ -66,30 +66,30 @@
 				cont(e);
 				break;
 			case 'call':
-				ev(e.calee, env, function (caleeValue) {
+				ev(e.callee, env, function (calleeValue) {
 					ev(e.param, env, function (paramValue) {
-						if (caleeValue instanceof Function) {
-							caleeValue(paramValue); // not sure
+						if (calleeValue instanceof Function) {
+							calleeValue(paramValue); // not sure
 						} else {
-							var newEnv = caleeValue.env;
+							var newEnv = calleeValue.env;
 
-							if (caleeValue.name) {
-								var funEntry = { key: caleeValue.name, value: caleeValue };
+							if (calleeValue.name) {
+								var funEntry = { key: calleeValue.name, value: calleeValue };
 								newEnv = newEnv.con(funEntry);
 							}
 
-							var paramEntry = { key: caleeValue.param, value: paramValue };
+							var paramEntry = { key: calleeValue.param, value: paramValue };
 							newEnv = newEnv.con(paramEntry);
-							ev(caleeValue.body, newEnv, cont);
+							ev(calleeValue.body, newEnv, cont);
 						}
 					});
 				});
 				break;
 			case 'call/cc':
-				ev(e.calee, env, function (caleeValue) {
-					var newEntry = { key: caleeValue.param, value: cont };
+				ev(e.callee, env, function (calleeValue) {
+					var newEntry = { key: calleeValue.param, value: cont };
 					var newEnv = env.con(newEntry);
-					ev(caleeValue.body, newEnv, cont);
+					ev(calleeValue.body, newEnv, cont);
 				});
 				break;
 			default:
@@ -98,7 +98,7 @@
 	}
 
 	function _ev(e, cont) {
-		ev(e, Env.EMPTY, cont || function (value) {
+		ev(e, window.cps.prelude, cont || function (value) {
 			console.log(value);
 		});
 	}

@@ -34,6 +34,11 @@
 			expect(bundle.data).toEqual(123 + 456);
 		});
 
+		it('evaluates a nested', function () {
+			ev('(+ (+ 12 34) (+ 56 78))', bundle.callback);
+			expect(bundle.data).toEqual(12 + 34 + 56 + 78);
+		});
+
 		it('evaluates a conditional', function () {
 			ev('(if 1 123 456)', bundle.callback);
 			expect(bundle.data).toEqual(123);
@@ -63,43 +68,44 @@
 		});
 
 		it('calls a function', function () {
-			ev('(call (lambda a a) 123)', bundle.callback);
+			ev('((lambda (a) a) 123)', bundle.callback);
 			expect(bundle.data).toEqual(123);
 		});
 
 		it('calls a nested function', function () {
-			ev('(call (call (lambda a (lambda b (+ a b))) 123) 456)', bundle.callback);
+			ev('((lambda (a b) (+ a b)) 123 456)', bundle.callback);
 			expect(bundle.data).toEqual(123 + 456);
 		});
 
 		it('calls with the current continuation', function () {
-			ev('(call/cc (lambda a (call a 123)))', bundle.callback);
+			ev('(call/cc (lambda (a) (a 123)))', bundle.callback);
 			expect(bundle.data).toEqual(123);
 		});
 
 		it('evaluates a complex program', function () {
-			ev('(call (fun sum n ' +
-				'(if n ' +
-				'(+ n (call sum (- n 1)))' +
-				'0))' +
+			ev('((fun sum (n) ' +
+				'	(if n ' +
+				'		(+ n (sum (- n 1)))' +
+				'		0))' +
 				'10)', bundle.callback);
 			expect(bundle.data).toEqual(55);
 		});
 
 		it('has no bound for the call stack', function () {
-			ev('(call (fun count n ' +
-				'(if n ' +
-				'(call count (- n 1))' +
-				'567))' +
-				'100000)', bundle.callback);
+			ev('((fun count (n) ' +
+				'	(if n ' +
+				'		(count (- n 1)) ' +
+				'		567)) ' +
+				'2)', bundle.callback);
 			expect(bundle.data).toEqual(567);
 		});
 
 		it('evaluates a complex call/cc program', function () {
 			ev('(let return 0 ' +
-				'(+ 1 (call/cc' +
-				'(lambda cont' +
-				'(set! return cont (call return 123))))))', bundle.callback);
+				'	(+ 1 (call/cc ' +
+				'		(lambda (cont) ' +
+				'			(set! return cont ' +
+				'				(return 123))))))', bundle.callback);
 			expect(bundle.data).toEqual(124);
 		});
 	});
