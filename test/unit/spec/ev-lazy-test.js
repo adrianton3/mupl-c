@@ -72,6 +72,11 @@
 			expect(bundle.data).toEqual(123 + 456);
 		});
 
+		it('passes + around', function () {
+			ev('((lambda (op a b) (op a b)) + 123 456)', bundle.callback);
+			expect(bundle.data).toEqual(123 + 456);
+		});
+
 		it('calls with the current continuation', function () {
 			ev('(call/cc (lambda (a) (a 123)))', bundle.callback);
 			expect(bundle.data).toEqual(123);
