@@ -29,6 +29,9 @@
 					return ev(e.e1, env, function (e1Value) {
 						return function () {
 							return ev(e.e2, env, function (e2Value) {
+								if (typeof e1Value !== 'number' || typeof e2Value !== 'number') {
+									throw new Error('cannot add non-numbers');
+								}
 								return cont(e1Value + e2Value);
 							});
 						}
@@ -40,6 +43,9 @@
 					return ev(e.e1, env, function (e1Value) {
 						return function () {
 							return ev(e.e2, env, function (e2Value) {
+								if (typeof e1Value !== 'number' || typeof e2Value !== 'number') {
+									throw new Error('cannot subtract non-numbers');
+								}
 								return cont(e1Value - e2Value);
 							});
 						}
@@ -94,7 +100,7 @@
 							return ev(e.param, env, function (paramValue) {
 								if (calleeValue.type === 'cont') {
 									return calleeValue.cont(paramValue);
-								} else {
+								} else if (calleeValue.type === 'closure') {
 									var newEnv = calleeValue.env;
 
 									if (calleeValue.name) {
@@ -107,6 +113,8 @@
 									return function () {
 										return ev(calleeValue.body, newEnv, cont);
 									};
+								} else {
+									throw new Error('cannot call non-function');
 								}
 							});
 						};

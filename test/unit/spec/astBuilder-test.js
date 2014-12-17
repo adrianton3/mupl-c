@@ -40,11 +40,11 @@
 		});
 
 		it('throws an exception when trying to parse an empty paren', function () {
-			expect(getAst.bind(null, '()')).toThrow(new Error('Unexpected empty ()'));
+			expect(getAst.bind(null, '()')).toThrowWithMessage('Unexpected empty ()');
 		});
 
 		it('throws an exception when trying to parse a bad conditional', function () {
-			expect(getAst.bind(null, '(if)')).toThrow(new Error('if special form admits 3 parameters'));
+			expect(getAst.bind(null, '(if)')).toThrowWithMessage('if special form admits 3 parameters');
 		});
 
 		describe('lambda', function () {

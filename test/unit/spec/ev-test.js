@@ -21,6 +21,7 @@
 	describe('ev', function () {
 		var bundle;
 		beforeEach(function () {
+			jasmine.addMatchers(cpsTest.customMatchers);
 			bundle = getBundle();
 		});
 
@@ -37,6 +38,21 @@
 		it('evaluates a nested sum', function () {
 			ev('(+ (+ 12 34) (+ 56 78))', bundle.callback);
 			expect(bundle.data).toEqual(12 + 34 + 56 + 78);
+		});
+
+		it('cannot add non-numbers', function () {
+			function thunk() { ev('(+ (lambda (a) a) 456)', bundle.callback); }
+			expect(thunk).toThrowWithMessage('cannot add non-numbers');
+		});
+
+		it('evaluates a subtraction', function () {
+			ev('(- 123 456)', bundle.callback);
+			expect(bundle.data).toEqual(123 - 456);
+		});
+
+		it('cannot subtract non-numbers', function () {
+			function thunk() { ev('(- 123 (lambda (a) a))', bundle.callback); }
+			expect(thunk).toThrowWithMessage('cannot subtract non-numbers');
 		});
 
 		it('evaluates a conditional', function () {
@@ -70,6 +86,11 @@
 		it('calls a function', function () {
 			ev('((lambda (a) a) 123)', bundle.callback);
 			expect(bundle.data).toEqual(123);
+		});
+
+		it('cannot call a non-function', function () {
+			function thunk() { ev('(123 456)', bundle.callback); }
+			expect(thunk).toThrowWithMessage('cannot call non-function');
 		});
 
 		it('calls a nested function', function () {
