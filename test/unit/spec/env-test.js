@@ -18,7 +18,7 @@
 
 		it('throws an exception when trying to find a non-existent entry', function () {
 			var env = buildEnv([entry('a', 10), entry('b', 20), entry('c', 30)]);
-			expect(function () { EMPTY.find('d'); }).toThrow(new Error('Entry with key d could not be found'));
+			expect(function () { env.find('d'); }).toThrow(new Error('Entry with key d could not be found'));
 		});
 
 		it('can attach and retrieve an entry', function () {
