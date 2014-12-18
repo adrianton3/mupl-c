@@ -1,5 +1,5 @@
 (function () {
-	var Env = window.cps.Env;
+	'use strict';
 
 	function ev(e, env, cont) {
 		switch (e.type) {
@@ -21,6 +21,9 @@
 			case '+':
 				ev(e.e1, env, function (e1Value) {
 					ev(e.e2, env, function (e2Value) {
+						if (typeof e1Value !== 'number' || typeof e2Value !== 'number') {
+							throw new Error('cannot add non-numbers');
+						}
 						cont(e1Value + e2Value);
 					});
 				});
@@ -28,6 +31,9 @@
 			case '-':
 				ev(e.e1, env, function (e1Value) {
 					ev(e.e2, env, function (e2Value) {
+						if (typeof e1Value !== 'number' || typeof e2Value !== 'number') {
+							throw new Error('cannot subtract non-numbers');
+						}
 						cont(e1Value - e2Value);
 					});
 				});
@@ -68,9 +74,9 @@
 			case 'call':
 				ev(e.callee, env, function (calleeValue) {
 					ev(e.param, env, function (paramValue) {
-						if (calleeValue instanceof Function) {
-							calleeValue(paramValue); // not sure
-						} else {
+						if (calleeValue.type === 'cont') {
+							calleeValue.cont(paramValue);
+						} else if (calleeValue.type === 'closure') {
 							var newEnv = calleeValue.env;
 
 							if (calleeValue.name) {
@@ -81,13 +87,19 @@
 							var paramEntry = { key: calleeValue.param, value: paramValue };
 							newEnv = newEnv.con(paramEntry);
 							ev(calleeValue.body, newEnv, cont);
+						} else {
+							throw new Error('cannot call non-function');
 						}
 					});
 				});
 				break;
 			case 'call/cc':
 				ev(e.callee, env, function (calleeValue) {
-					var newEntry = { key: calleeValue.param, value: cont };
+					var capturedCont = {
+						type: 'cont',
+						cont: cont
+					};
+					var newEntry = { key: calleeValue.param, value: capturedCont };
 					var newEnv = env.con(newEntry);
 					ev(calleeValue.body, newEnv, cont);
 				});

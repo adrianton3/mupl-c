@@ -12,12 +12,21 @@
 		return cont0;
 	};
 
-	describe('ev-lazy', function () {
+	describe('ev-trampolined-lazy', function () {
 		beforeEach(function () {
 			jasmine.addMatchers(cpsTest.customMatchers);
 		});
 
 		cpsTest.subspecs.base(ev);
+
+		it('has no bound for the call stack', function () {
+			var cont0 = ev('((fun count (n) ' +
+				'	(if n ' +
+				'		(count (- n 1)) ' +
+				'		567)) ' +
+				'20000)');
+			expect(cont0).toHaveBeenCalledWith(567);
+		});
 
 		it('evaluates bindings lazily', function () {
 			var cont0 = ev('(let infinite ' +

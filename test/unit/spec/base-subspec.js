@@ -94,15 +94,6 @@
             expect(cont0).toHaveBeenCalledWith(55);
         });
 
-        it('has no bound for the call stack', function () {
-            var cont0 = ev('((fun count (n) ' +
-            '	(if n ' +
-            '		(count (- n 1)) ' +
-            '		567)) ' +
-            '20000)');
-            expect(cont0).toHaveBeenCalledWith(567);
-        });
-
         it('evaluates a complex call/cc program', function () {
             var cont0 = ev('(let return 0 ' +
             '	(+ 1 (call/cc ' +
