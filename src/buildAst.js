@@ -13,12 +13,12 @@
 	function buildCall(call) {
 		// (call (call (call callee x) y) z)
 		// (callee x y z)
-		var ret = buildAst(call.tree[0]);
-		for (var i = 1; i < call.tree.length; i++) {
+		var ret = buildAst(call.children[0]);
+		for (var i = 1; i < call.children.length; i++) {
 			ret = {
 				type: 'call',
 				callee: ret,
-				param: buildAst(call.tree[i])
+				param: buildAst(call.children[i])
 			};
 		}
 		return ret;
@@ -27,14 +27,14 @@
 	function buildLambda(lambda) {
 		// (lambda x (lambda y (lambda z body)))
 		// (lambda (x y z) body)
-		if (lambda.tree[1].token.type !== '(') {
+		if (lambda.children[1].token.type !== '(') {
 			throw new Error('missing parameter list for anonymous function');
 		}
 
-		var params = lambda.tree[1].tree;
-		var ret = buildAst(lambda.tree[2]);
+		var params = lambda.children[1].children;
+		var ret = buildAst(lambda.children[2]);
 		for (var i = params.length - 1; i >= 0; i--) {
-			if (params[i].token.type !== 'alphanum') {
+			if (params[i].token.type !== 'identifier') {
 				throw new Error('formal parameters must be alphanums');
 			}
 
@@ -50,18 +50,18 @@
 	function buildFun(fun) {
 		// (fun f x (lambda y (lambda z body)))
 		// (fun f (x y z) body)
-		if (fun.tree[1].token.type !== 'alphanum') {
+		if (fun.children[1].token.type !== 'identifier') {
 			throw new Error('function name must be an alphanum');
 		}
 
-		if (fun.tree[2].token.type !== '(') {
+		if (fun.children[2].token.type !== '(') {
 			throw new Error('missing parameter list for function');
 		}
 
-		var params = fun.tree[2].tree;
-		var ret = buildAst(fun.tree[3]);
+		var params = fun.children[2].children;
+		var ret = buildAst(fun.children[3]);
 		for (var i = params.length - 1; i >= 1; i--) {
-			if (params[i].token.type !== 'alphanum') {
+			if (params[i].token.type !== 'identifier') {
 				throw new Error('formal parameters must be alphanums');
 			}
 
@@ -73,7 +73,7 @@
 		}
 		ret = {
 			type: 'fun',
-			name: fun.tree[1].token.value,
+			name: fun.children[1].token.value,
 			param: params[i].token.value,
 			body: ret
 		};
@@ -88,13 +88,13 @@
 					value: tree.token.value
 				};
 			case '(':
-				if (!tree.tree.length) {
+				if (!tree.children.length) {
 					throw new Error('Unexpected empty ()');
 				}
-				if (tree.tree[0].token.type === 'alphanum') {
-					var formType = tree.tree[0].token.value;
+				if (tree.children[0].token.type === 'identifier') {
+					var formType = tree.children[0].token.value;
 					if (subs[formType] !== undefined) {
-						if (subs[formType] !== tree.tree.length - 1) {
+						if (subs[formType] !== tree.children.length - 1) {
 							throw new Error(formType + ' special form admits ' + subs[formType] + ' parameters');
 						}
 					}
@@ -104,29 +104,29 @@
 					case 'if':
 						return {
 							type: 'if',
-							cond: buildAst(tree.tree[1]),
-							e1: buildAst(tree.tree[2]),
-							e2: buildAst(tree.tree[3])
+							cond: buildAst(tree.children[1]),
+							e1: buildAst(tree.children[2]),
+							e2: buildAst(tree.children[3])
 						};
 					case 'let':
-						if (tree.tree[1].token.type !== 'alphanum') {
+						if (tree.children[1].token.type !== 'identifier') {
 							throw new Error('can only bind to alphanums using let');
 						}
 						return {
 							type: 'let',
-							name: tree.tree[1].token.value,
-							e: buildAst(tree.tree[2]),
-							body: buildAst(tree.tree[3])
+							name: tree.children[1].token.value,
+							e: buildAst(tree.children[2]),
+							body: buildAst(tree.children[3])
 						};
 					case 'set!':
-						if (tree.tree[1].token.type !== 'alphanum') {
+						if (tree.children[1].token.type !== 'identifier') {
 							throw new Error('bindings are referenced by alphanums when using set!');
 						}
 						return {
 							type: 'set!',
-							name: tree.tree[1].token.value,
-							e: buildAst(tree.tree[2]),
-							body: buildAst(tree.tree[3])
+							name: tree.children[1].token.value,
+							e: buildAst(tree.children[2]),
+							body: buildAst(tree.children[3])
 						};
 					case 'lambda':
 						return buildLambda(tree);
@@ -135,12 +135,12 @@
 					case 'call/cc':
 						return {
 							type: 'call/cc',
-							callee: buildAst(tree.tree[1])
+							callee: buildAst(tree.children[1])
 						};
 					default:
 						return buildCall(tree);
 				}
-			case 'alphanum':
+			case 'identifier':
 				return {
 					type: 'var',
 					name: tree.token.value
