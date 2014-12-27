@@ -41,22 +41,22 @@
         });
 
         it('creates a binding an retrieves it', function () {
-            var cont0 = ev('(let a 123 a)');
+            var cont0 = ev('(let ((a 123)) a)');
             expect(cont0).toHaveBeenCalledWith(123);
         });
 
         it('creates nested bindings an retrieves them', function () {
-            var cont0 = ev('(let a 123 (let b 456 (+ a b)))');
+            var cont0 = ev('(let ((a 123) (b 456)) (+ a b))');
             expect(cont0).toHaveBeenCalledWith(123 + 456);
         });
 
         it('cannot retrieve shadowed bindings', function () {
-            var cont0 = ev('(let a 123 (let a 456 a))');
+            var cont0 = ev('(let ((a 123) (a 456)) a)');
             expect(cont0).toHaveBeenCalledWith(456);
         });
 
         it('can mutate a binding', function () {
-            var cont0 = ev('(let a 123 (set! a 456 a))');
+            var cont0 = ev('(let ((a 123)) (set! a 456 a))');
             expect(cont0).toHaveBeenCalledWith(456);
         });
 
@@ -95,7 +95,7 @@
         });
 
         it('evaluates a complex call/cc program', function () {
-            var cont0 = ev('(let return 0 ' +
+            var cont0 = ev('(let ((return 0)) ' +
             '	(+ 1 (call/cc ' +
             '		(lambda (cont) ' +
             '			(set! return cont ' +

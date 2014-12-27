@@ -29,8 +29,8 @@
 		});
 
 		it('evaluates bindings lazily', function () {
-			var cont0 = ev('(let infinite ' +
-				'	((fun inf (n) (inf 0)) 0) ' +
+			var cont0 = ev('(let ((infinite ' +
+				'	((fun inf (n) (inf 0)) 0))) ' +
 				'123)');
 			expect(cont0).toHaveBeenCalledWith(123);
 		});
@@ -42,7 +42,7 @@
 		});
 
 		it('evaluates a complex program using myif', function () {
-			var cont0 = ev('(let myif (lambda (cond then else) (if cond then else)) ' +
+			var cont0 = ev('(let ((myif (lambda (cond then else) (if cond then else)))) ' +
 				'((fun sum (n) ' +
 				'	((myif n (+ n (sum (- n 1)))) 0)) ' +
 				'10))');

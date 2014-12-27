@@ -14,7 +14,7 @@ Try it [here](http://madflame991.github.io/mupl-c/examples/repl/repl.html)!
   + `(+ a b)` addition
   + `(- a b)` subtraction
   + `(if cond then else)` return *then* if *cond* holds otherwise return *else*
-  + `(let name exp body)` evaluate *exp*, bind its result to *name* and return *body*
+  + `(let ((name exp)...) body)` evaluate *exp*, bind its result to *name* and return *body*
   + `(set! var exp body)` set the value of *var* to *exp* and return *body*
   + `(lambda (param...) body)` define an anonymous function
   + `(fun name (param...) body)` define a named function

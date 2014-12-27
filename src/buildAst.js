@@ -3,7 +3,7 @@
 
 	var subs = {
 		'if': 3,
-		'let': 3,
+		'let': 2,
 		'set!': 3,
 		'lambda': 2,
 		'fun': 3,
@@ -80,6 +80,47 @@
 		return ret;
 	}
 
+	function buildLet(let_) {
+		// (let x 123 (let y 456 789))
+		// (let ((x 123) (y 456)) 789)
+		if (let_.children[1].token.type !== '(') {
+			throw new Error('missing binding list for let expression');
+		}
+
+		var list = let_.children[1].children;
+
+		if (list.length < 1) {
+			throw new Error('binding list must contain at least 1 binding');
+		}
+
+		list.forEach(function (pair) {
+			if (pair.token.type !== '(') {
+				throw new Error('binding list items are pairs of an identifier and an expression');
+			}
+
+			if (pair.children.length !== 2) {
+				throw new Error('binding list items must have 2 members, an identifier and an expression');
+			}
+
+			if (pair.children[0].token.type !== 'identifier') {
+				throw new Error('cannot bind to non-identifiers');
+			}
+		});
+
+		var ret = buildAst(let_.children[2]);
+		for (var i = list.length - 1; i >= 0; i--) {
+			var pair = list[i];
+			ret = {
+				type: 'let',
+				name: pair.children[0].token.value,
+				e: buildAst(pair.children[1]),
+				body: ret
+			};
+		}
+
+		return ret;
+	}
+
 	function buildAst(tree) {
 		switch (tree.token.type) {
 			case 'number':
@@ -109,18 +150,10 @@
 							e2: buildAst(tree.children[3])
 						};
 					case 'let':
-						if (tree.children[1].token.type !== 'identifier') {
-							throw new Error('can only bind to alphanums using let');
-						}
-						return {
-							type: 'let',
-							name: tree.children[1].token.value,
-							e: buildAst(tree.children[2]),
-							body: buildAst(tree.children[3])
-						};
+						return buildLet(tree);
 					case 'set!':
 						if (tree.children[1].token.type !== 'identifier') {
-							throw new Error('bindings are referenced by alphanums when using set!');
+							throw new Error('bindings are referenced by identifiers when using set!');
 						}
 						return {
 							type: 'set!',
