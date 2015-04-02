@@ -1,5 +1,5 @@
 (function () {
-	var Env = window.cps.Env;
+	'use strict';
 
 	function ev(e, env, cont) {
 		switch (e.type) {
@@ -21,6 +21,9 @@
 			case '+':
 				ev(e.e1, env, function (e1Value) {
 					ev(e.e2, env, function (e2Value) {
+						if (typeof e1Value !== 'number' || typeof e2Value !== 'number') {
+							throw new Error('cannot add non-numbers');
+						}
 						cont(e1Value + e2Value);
 					});
 				});
@@ -28,6 +31,9 @@
 			case '-':
 				ev(e.e1, env, function (e1Value) {
 					ev(e.e2, env, function (e2Value) {
+						if (typeof e1Value !== 'number' || typeof e2Value !== 'number') {
+							throw new Error('cannot subtract non-numbers');
+						}
 						cont(e1Value - e2Value);
 					});
 				});
@@ -66,30 +72,36 @@
 				cont(e);
 				break;
 			case 'call':
-				ev(e.calee, env, function (caleeValue) {
+				ev(e.callee, env, function (calleeValue) {
 					ev(e.param, env, function (paramValue) {
-						if (caleeValue instanceof Function) {
-							caleeValue(paramValue); // not sure
-						} else {
-							var newEnv = caleeValue.env;
+						if (calleeValue.type === 'cont') {
+							calleeValue.cont(paramValue);
+						} else if (calleeValue.type === 'closure') {
+							var newEnv = calleeValue.env;
 
-							if (caleeValue.name) {
-								var funEntry = { key: caleeValue.name, value: caleeValue };
+							if (calleeValue.name) {
+								var funEntry = { key: calleeValue.name, value: calleeValue };
 								newEnv = newEnv.con(funEntry);
 							}
 
-							var paramEntry = { key: caleeValue.param, value: paramValue };
+							var paramEntry = { key: calleeValue.param, value: paramValue };
 							newEnv = newEnv.con(paramEntry);
-							ev(caleeValue.body, newEnv, cont);
+							ev(calleeValue.body, newEnv, cont);
+						} else {
+							throw new Error('cannot call non-function');
 						}
 					});
 				});
 				break;
 			case 'call/cc':
-				ev(e.calee, env, function (caleeValue) {
-					var newEntry = { key: caleeValue.param, value: cont };
+				ev(e.callee, env, function (calleeValue) {
+					var capturedCont = {
+						type: 'cont',
+						cont: cont
+					};
+					var newEntry = { key: calleeValue.param, value: capturedCont };
 					var newEnv = env.con(newEntry);
-					ev(caleeValue.body, newEnv, cont);
+					ev(calleeValue.body, newEnv, cont);
 				});
 				break;
 			default:
@@ -98,7 +110,7 @@
 	}
 
 	function _ev(e, cont) {
-		ev(e, Env.EMPTY, cont || function (value) {
+		ev(e, window.cps.prelude, cont || function (value) {
 			console.log(value);
 		});
 	}

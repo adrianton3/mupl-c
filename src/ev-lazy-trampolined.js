@@ -1,13 +1,45 @@
 (function () {
 	'use strict';
 
+	function delay(computation) {
+		return {
+			type: 'thunk',
+			value: null,
+			computed: false,
+			computation: computation
+		};
+	}
+
+	function force(thunk) {
+		if (thunk.type !== 'thunk') {
+			return thunk;
+		}
+
+		if (thunk.computed) {
+			return thunk.value;
+		}
+
+		var value;
+		var catcher = function (value_) {
+			value = value_;
+		};
+		thunk.computation(catcher);
+
+		while (value.type === 'thunk') {
+			value.computation(catcher);
+		}
+		thunk.computed = true;
+		thunk.value = value;
+		return value;
+	}
+
 	function ev(e, env, cont) {
 		switch (e.type) {
 			case 'number':
 				return cont(e.value);
 				break;
 			case 'var':
-				return cont(env.find(e.name));
+				return cont(force(env.find(e.name)));
 				break;
 			case 'if':
 				return function () {
@@ -54,13 +86,19 @@
 				break;
 			case 'let':
 				return function () {
-					return ev(e.e, env, function (eValue) {
-						var newEntry = { key: e.name, value: eValue };
-						var newEnv = env.con(newEntry);
-						return function () {
-							return ev(e.body, newEnv, cont);
-						}
-					});
+					var newEntry = {
+						key: e.name,
+						value: delay(function (store) {
+							var tmp = ev(e.e, env, store);
+							while (tmp instanceof Function) {
+								tmp = tmp();
+							}
+						})
+					};
+					var newEnv = env.con(newEntry);
+					return function () {
+						return ev(e.body, newEnv, cont);
+					};
 				};
 				break;
 			case 'set!':
@@ -96,28 +134,36 @@
 			case 'call':
 				return function () {
 					return ev(e.callee, env, function (calleeValue) {
-						return function () {
-							return ev(e.param, env, function (paramValue) {
-								if (calleeValue.type === 'cont') {
-									return calleeValue.cont(paramValue);
-								} else if (calleeValue.type === 'closure') {
-									var newEnv = calleeValue.env;
+						if (calleeValue.type === 'cont') {
+							return function () {
+								return ev(e.param, env, function (paramValue) {
+									calleeValue.cont(paramValue); // return ?
+								});
+							};
+						} else if (calleeValue.type === 'closure') {
+							var newEnv = calleeValue.env;
 
-									if (calleeValue.name) {
-										var funEntry = { key: calleeValue.name, value: calleeValue };
-										newEnv = newEnv.con(funEntry);
+							if (calleeValue.name) {
+								var funEntry = { key: calleeValue.name, value: calleeValue };
+								newEnv = newEnv.con(funEntry);
+							}
+
+							var paramEntry = {
+								key: calleeValue.param,
+								value: delay(function (store) {
+									var tmp = ev(e.param, env, store);
+									while (tmp instanceof Function) {
+										tmp = tmp();
 									}
-
-									var paramEntry = { key: calleeValue.param, value: paramValue };
-									newEnv = newEnv.con(paramEntry);
-									return function () {
-										return ev(calleeValue.body, newEnv, cont);
-									};
-								} else {
-									throw new Error('cannot call non-function');
-								}
-							});
-						};
+								})
+							};
+							newEnv = newEnv.con(paramEntry);
+							return function () {
+								return ev(calleeValue.body, newEnv, cont);
+							};
+						} else {
+							throw new Error('cannot call non-function');
+						}
 					});
 				};
 				break;
@@ -142,15 +188,23 @@
 	}
 
 	function _ev(e, cont) {
-		var result = ev(e, window.cps.prelude, cont || function (value) {
-			console.log(value);
+		cont = cont || function (value) { console.log(value); };
+
+		var result = ev(e, window.cps.prelude, function (value) {
+			cont(force(value));
 		});
 
+		var counter = 0;
 		while (result instanceof Function) {
 			result = result();
+
+			counter++;
+			if (counter > 1000000) {
+				throw new Error('The executing script appears to be non-responding');
+			}
 		}
 	}
 
 	if (!window.cps) { window.cps = {}; }
-	window.cps.evT = _ev;
+	window.cps.evLT = _ev;
 })();

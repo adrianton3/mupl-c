@@ -20,9 +20,9 @@
 			case 'fun':
 				return '(fun ' + ast.name + ' ' + ast.param + ' ' + printAst(ast.body) + ')';
 			case 'call':
-				return '(call ' + printAst(ast.calee) + ' ' + printAst(ast.param) + ')';
+				return '(call ' + printAst(ast.callee) + ' ' + printAst(ast.param) + ')';
 			case 'call/cc':
-				return '(call/cc ' + printAst(ast.calee) + ')';
+				return '(call/cc ' + printAst(ast.callee) + ')';
 		}
 	}
 
