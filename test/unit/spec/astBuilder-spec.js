@@ -34,6 +34,34 @@
 			expect(getAst('a')).toEqual(binding('a'));
 		});
 
+		describe('$+ (debug only)', function () {
+			it('builds an ast for a raw addition', function () {
+				expect(getAst('($+ 123 456)')).toEqual({
+					type: '+',
+					e1: number(123),
+					e2: number(456)
+				});
+			});
+
+			it('throws an exception when trying to parse a bad raw addition', function () {
+				expect(getAst.bind(null, '($+)')).toThrowWithMessage('$+ special form admits 2 parameters');
+			});
+		});
+
+		describe('$- (debug only)', function () {
+			it('builds an ast for a raw addition', function () {
+				expect(getAst('($- 123 456)')).toEqual({
+					type: '-',
+					e1: number(123),
+					e2: number(456)
+				});
+			});
+
+			it('throws an exception when trying to parse a bad raw addition', function () {
+				expect(getAst.bind(null, '($-)')).toThrowWithMessage('$- special form admits 2 parameters');
+			});
+		});
+
 		describe('if', function () {
 			it('builds an ast for a conditional', function () {
 				expect(getAst('(if 123 456 789)')).toEqual({

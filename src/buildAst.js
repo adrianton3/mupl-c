@@ -2,6 +2,8 @@
 	'use strict';
 
 	var subs = {
+		'$+': 2,
+		'$-': 2,
 		'if': 3,
 		'let': 2,
 		'set!': 3,
@@ -10,16 +12,37 @@
 		'call/cc': 1
 	};
 
+	function makeNode(type, properties) {
+		return function () {
+			var node = {
+				type: type
+			};
+			var args = arguments;
+			properties.forEach(function (property, index) {
+				node[property] = args[index];
+			});
+			return node;
+		}
+	}
+
+	var $call = makeNode('call', ['callee', 'param']);
+	var $callCC = makeNode('call/cc', ['callee']);
+	var $lambda = makeNode('lambda', ['param', 'body']);
+	var $fun = makeNode('fun', ['name', 'param', 'body']);
+	var $let = makeNode('let', ['name', 'e', 'body']);
+	var $if = makeNode('if', ['cond', 'e1', 'e2']);
+	var $add = makeNode('+', ['e1', 'e2']);
+	var $sub = makeNode('-', ['e1', 'e2']);
+	var $set = makeNode('set!', ['name', 'e', 'body']);
+	var $var = makeNode('var', ['name']);
+	var $number = makeNode('number', ['value']);
+
 	function buildCall(call) {
 		// (call (call (call callee x) y) z)
 		// (callee x y z)
 		var ret = buildAst(call.children[0]);
 		for (var i = 1; i < call.children.length; i++) {
-			ret = {
-				type: 'call',
-				callee: ret,
-				param: buildAst(call.children[i])
-			};
+			ret = $call(ret, buildAst(call.children[i]));
 		}
 		return ret;
 	}
@@ -38,11 +61,7 @@
 				throw new Error('formal parameters must be alphanums');
 			}
 
-			ret = {
-				type: 'lambda',
-				param: params[i].token.value,
-				body: ret
-			};
+			ret = $lambda(params[i].token.value, ret);
 		}
 		return ret;
 	}
@@ -65,19 +84,14 @@
 				throw new Error('formal parameters must be alphanums');
 			}
 
-			ret = {
-				type: 'lambda',
-				param: params[i].token.value,
-				body: ret
-			};
+			ret = $lambda(params[i].token.value, ret);
 		}
-		ret = {
-			type: 'fun',
-			name: fun.children[1].token.value,
-			param: params[i].token.value,
-			body: ret
-		};
-		return ret;
+
+		return $fun(
+			fun.children[1].token.value,
+			params[i].token.value,
+			ret
+		);
 	}
 
 	function buildLet(let_) {
@@ -110,12 +124,11 @@
 		var ret = buildAst(let_.children[2]);
 		for (var i = list.length - 1; i >= 0; i--) {
 			var pair = list[i];
-			ret = {
-				type: 'let',
-				name: pair.children[0].token.value,
-				e: buildAst(pair.children[1]),
-				body: ret
-			};
+			ret = $let(
+				pair.children[0].token.value,
+				buildAst(pair.children[1]),
+				ret
+			);
 		}
 
 		return ret;
@@ -124,10 +137,7 @@
 	function buildAst(tree) {
 		switch (tree.token.type) {
 			case 'number':
-				return {
-					type: 'number',
-					value: tree.token.value
-				};
+				return $number(tree.token.value);
 			case '(':
 				if (!tree.children.length) {
 					throw new Error('Unexpected empty ()');
@@ -143,41 +153,43 @@
 
 				switch (formType) {
 					case 'if':
-						return {
-							type: 'if',
-							cond: buildAst(tree.children[1]),
-							e1: buildAst(tree.children[2]),
-							e2: buildAst(tree.children[3])
-						};
+						return $if(
+							buildAst(tree.children[1]),
+							buildAst(tree.children[2]),
+							buildAst(tree.children[3])
+						);
+					case '$+': // used for debugging only
+						return $add(
+							buildAst(tree.children[1]),
+							buildAst(tree.children[2])
+						);
+					case '$-': // used for debugging only
+						return $sub(
+							buildAst(tree.children[1]),
+							buildAst(tree.children[2])
+						);
 					case 'let':
 						return buildLet(tree);
 					case 'set!':
 						if (tree.children[1].token.type !== 'identifier') {
 							throw new Error('bindings are referenced by identifiers when using set!');
 						}
-						return {
-							type: 'set!',
-							name: tree.children[1].token.value,
-							e: buildAst(tree.children[2]),
-							body: buildAst(tree.children[3])
-						};
+						return $set(
+							tree.children[1].token.value,
+							buildAst(tree.children[2]),
+							buildAst(tree.children[3])
+						);
 					case 'lambda':
 						return buildLambda(tree);
 					case 'fun':
 						return buildFun(tree);
 					case 'call/cc':
-						return {
-							type: 'call/cc',
-							callee: buildAst(tree.children[1])
-						};
+						return $callCC(buildAst(tree.children[1]));
 					default:
 						return buildCall(tree);
 				}
 			case 'identifier':
-				return {
-					type: 'var',
-					name: tree.token.value
-				};
+				return $var(tree.token.value);
 			default:
 				console.warn('Token type not supported');
 		}
@@ -185,4 +197,17 @@
 
 	if (!window.cps) { window.cps = {}; }
 	window.cps.buildAst = buildAst;
+	window.cps.buildNode = {
+		$call: $call,
+		$callCC: $callCC,
+		$lambda: $lambda,
+		$fun: $fun,
+		$let: $let,
+		$if: $if,
+		$add: $add,
+		$sub: $sub,
+		$set: $set,
+		$var: $var,
+		$number: $number
+	};
 })();

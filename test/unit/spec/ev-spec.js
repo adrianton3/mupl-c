@@ -12,7 +12,7 @@
 		return cont0;
 	};
 
-	describe('ev-trampolined', function () {
+	describe('ev', function () {
 		beforeEach(function () {
 			jasmine.addMatchers(cpsTest.customMatchers);
 		});
