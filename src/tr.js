@@ -39,6 +39,12 @@
 					"})(eValue_" + level + ")" +
 				"})");
 				break;
+			case 'set!':
+				return tr(e.e, "(function (eValue_" + level + ") {" +
+					e.name + " = eValue_" + level + ";" +
+					tr(e.body, cont, level + 1) +
+				"})");
+				break;
 			case 'lambda':
 				return cont + "({" +
 					"type: 'closure'," +

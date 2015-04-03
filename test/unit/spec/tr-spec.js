@@ -68,6 +68,10 @@
 			expect(tr('(let ((a 123) (b a)) b)')).toEqual(123);
 		});
 
+		it('(let ((a 123)) (set! a 456 a))', function () {
+			expect(tr('(let ((a 123)) (set! a 456 a))')).toEqual(456);
+		});
+
 		it('($+ 123 (let ((a 456)) a))', function () {
 			expect(tr('($+ 123 (let ((a 456)) a))')).toEqual(123 + 456);
 		});
@@ -106,6 +110,15 @@
 			'		($+ n (sum ($- n 1)))' +
 			'		0))' +
 			'10)')).toEqual(55);
+		});
+
+		it('evaluates a complex call/cc program', function () {
+			expect(tr('(let ((return_ 0)) ' +
+			'	($+ 1 (call/cc ' +
+			'		(lambda (cont_) ' +
+			'			(set! return_ cont_ ' +
+			'				(return_ 123))))))'
+			)).toEqual(124);
 		});
 	});
 })();
