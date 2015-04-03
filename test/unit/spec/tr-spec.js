@@ -56,6 +56,22 @@
 			expect(tr('(if ($+ 0 0) 10 20)')).toEqual(20);
 		});
 
+		it('(let ((a 123)) a)', function () {
+			expect(tr('(let ((a 123)) a)')).toEqual(123);
+		});
+
+		it('(let ((a 123) (a 456)) a)', function () {
+			expect(tr('(let ((a 123) (a 456)) a)')).toEqual(456);
+		});
+
+		it('(let ((a 123) (b a)) b)', function () {
+			expect(tr('(let ((a 123) (b a)) b)')).toEqual(123);
+		});
+
+		it('($+ 123 (let ((a 456)) a))', function () {
+			expect(tr('($+ 123 (let ((a 456)) a))')).toEqual(123 + 456);
+		});
+
 		it('((lambda (a) a) 1)', function () {
 			expect(tr('((lambda (a) a) 1)')).toEqual(1);
 		});

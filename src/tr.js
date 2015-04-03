@@ -32,6 +32,13 @@
 					"})", level + 1) +
 				"})", level + 1);
 				break;
+			case 'let':
+				return tr(e.e, "(function (eValue_" + level + ") {" +
+					"(function (" + e.name + ") {" +
+						tr(e.body, cont, level + 1) +
+					"})(eValue_" + level + ")" +
+				"})");
+				break;
 			case 'lambda':
 				return cont + "({" +
 					"type: 'closure'," +
@@ -47,9 +54,6 @@
 					"return " + e.name + ";" +
 				"})())";
 				break;
-			//case 'closure':
-			//	cont(e);
-			//	break;
 			case 'call':
 				return tr(e.callee, "(function (calleeValue_" + level + ") {" +
 					tr(e.param, "(function (paramValue_" + level + ") {" +
@@ -67,9 +71,6 @@
 						"type: 'cont'," +
 						"cont: function (value) {" + cont + "(value); }" +
 					"};" +
-					//var newEntry = { key: calleeValue.param, value: capturedCont };
-					//var newEnv = env.con(newEntry);
-					//var newEnv = env.con(newEntry);
 					"calleeValue_" + level + ".body(capturedCont)" +
 				"})", level + 1);
 				break;
