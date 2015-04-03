@@ -68,12 +68,28 @@
 			expect(tr('((lambda (a b c) ($+ ($+ a b) c)) 1 10 100)')).toEqual(111);
 		});
 
+		it('((fun f (a) a) 1)', function () {
+			expect(tr('((fun f (a) a) 1)')).toEqual(1);
+		});
+
+		it('((fun f (a) (if a (f 0) 123)) 1)', function () {
+			expect(tr('((fun f (a) (if a (f 0) 123)) 1)')).toEqual(123);
+		});
+
 		it('(call/cc (lambda (a) (a 1)))', function () {
 			expect(tr('(call/cc (lambda (a) (a 1)))')).toEqual(1);
 		});
 
 		it('($+ 1 (call/cc (lambda (a) (call a 10))))', function () {
 			expect(tr('($+ 1 (call/cc (lambda (a) (a 10))))')).toEqual(11);
+		});
+
+		it('evaluates a complex program', function () {
+			expect(tr('((fun sum (n) ' +
+			'	(if n ' +
+			'		($+ n (sum ($- n 1)))' +
+			'		0))' +
+			'10)')).toEqual(55);
 		});
 	});
 })();

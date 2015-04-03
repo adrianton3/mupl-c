@@ -38,6 +38,15 @@
 					"body: (function (" + e.param + ", cont) { " + tr(e.body, 'cont', level + 1) + " })" +
 				"})";
 				break;
+			case 'fun':
+				return cont + "((function () {" +
+					"var " + e.name + " = {" +
+						"type: 'closure'," +
+						"body: (function (" + e.param + ", cont) { " + tr(e.body, 'cont', level + 1) + " })" +
+					"};" +
+					"return " + e.name + ";" +
+				"})())";
+				break;
 			//case 'closure':
 			//	cont(e);
 			//	break;
