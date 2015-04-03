@@ -50,6 +50,7 @@
 		} catch (ex) {
 			outTextarea.value = outTextarea.value + ex + '\n\n';
 		}
+		outTextarea.scrollTop = outTextarea.scrollHeight;
 
 		inTextarea.value = '';
 	}
