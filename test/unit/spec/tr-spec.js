@@ -32,6 +32,30 @@
 			expect(tr('($+ 1 ($+ 10 100))')).toEqual(111);
 		});
 
+		it('(if 1 10 20)', function () {
+			expect(tr('(if 1 10 20)')).toEqual(10);
+		});
+
+		it('(if 0 10 20)', function () {
+			expect(tr('(if 0 10 20)')).toEqual(20);
+		});
+
+		it('(if 1 ($+ 1 10) 20)', function () {
+			expect(tr('(if 1 ($+ 1 10) 20)')).toEqual(11);
+		});
+
+		it('($+ 1 (if 1 10 20))', function () {
+			expect(tr('($+ 1 (if 1 10 20))')).toEqual(11);
+		});
+
+		it('(if ($+ 0 1) 10 20)', function () {
+			expect(tr('(if ($+ 0 1) 10 20)')).toEqual(10);
+		});
+
+		it('(if ($+ 0 0) 10 20)', function () {
+			expect(tr('(if ($+ 0 0) 10 20)')).toEqual(20);
+		});
+
 		it('((lambda (a) a) 1)', function () {
 			expect(tr('((lambda (a) a) 1)')).toEqual(1);
 		});

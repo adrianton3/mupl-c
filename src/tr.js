@@ -10,13 +10,13 @@
 				return cont + "(" + e.name + ")";
 				break;
 			case 'if':
-				//tr(e.cond, function (condValue) {
-				//	if (condValue) {
-				//		tr(e.e1, cont);
-				//	} else {
-				//		tr(e.e2, cont);
-				//	}
-				//});
+				return tr(e.cond, "(function (condValue_" + level + ") {" +
+					"if (condValue_" + level + ") {" +
+						tr(e.e1, cont, level + 1) +
+					"} else {" +
+						tr(e.e2, cont, level + 1) +
+					"}" +
+				"})");
 				break;
 			case '+':
 				return tr(e.e1, "(function (e1Value_" + level + ") {" +
