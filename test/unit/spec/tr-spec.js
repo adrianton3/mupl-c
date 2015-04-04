@@ -7,12 +7,8 @@
 		var tokens = tokenizer(str);
 		var tree = espace.Parser.parse(tokens);
 		var ast = cps.buildAst(tree);
-		var source = window.cps.tr(ast, '');
-		console.log(source);
-		console.log('===');
-		window.z = 0;
-		new Function(source)();
-		return window.z;
+		var source = window.cps.tr(ast);
+		return new Function(source)();
 	};
 
 	describe('tr', function () {

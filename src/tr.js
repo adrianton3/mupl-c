@@ -5,10 +5,8 @@
 		switch (e.type) {
 			case 'number':
 				return cont + "(" + e.value + ")";
-				break;
 			case 'var':
 				return cont + "(" + e.name + ")";
-				break;
 			case 'if':
 				return tr(e.cond, "(function (condValue_" + level + ") {" +
 					"if (condValue_" + level + ") {" +
@@ -17,40 +15,34 @@
 						tr(e.e2, cont, level + 1) +
 					"}" +
 				"})");
-				break;
 			case '+':
 				return tr(e.e1, "(function (e1Value_" + level + ") {" +
 					tr(e.e2, "(function (e2Value_" + level + ") {" +
 						cont + "(e1Value_" + level + " + e2Value_" + level + ")" +
 					"})", level + 1) +
 				"})", level + 1);
-				break;
 			case '-':
 				return tr(e.e1, "(function (e1Value_" + level + ") {" +
 					tr(e.e2, "(function (e2Value_" + level + ") {" +
 						cont + "(e1Value_" + level + " - e2Value_" + level + ")" +
 					"})", level + 1) +
 				"})", level + 1);
-				break;
 			case 'let':
 				return tr(e.e, "(function (eValue_" + level + ") {" +
 					"(function (" + e.name + ") {" +
 						tr(e.body, cont, level + 1) +
 					"})(eValue_" + level + ")" +
 				"})");
-				break;
 			case 'set!':
 				return tr(e.e, "(function (eValue_" + level + ") {" +
 					e.name + " = eValue_" + level + ";" +
 					tr(e.body, cont, level + 1) +
 				"})");
-				break;
 			case 'lambda':
 				return cont + "({" +
 					"type: 'closure'," +
 					"body: (function (" + e.param + ", cont) { " + tr(e.body, 'cont', level + 1) + " })" +
 				"})";
-				break;
 			case 'fun':
 				return cont + "((function () {" +
 					"var " + e.name + " = {" +
@@ -59,7 +51,6 @@
 					"};" +
 					"return " + e.name + ";" +
 				"})())";
-				break;
 			case 'call':
 				return tr(e.callee, "(function (calleeValue_" + level + ") {" +
 					tr(e.param, "(function (paramValue_" + level + ") {" +
@@ -70,7 +61,6 @@
 						"}" +
 					"})", level + 1) +
 				"})", level + 1);
-				break;
 			case 'call/cc':
 				return tr(e.callee, "(function (calleeValue_" + level + ") {" +
 					"var capturedCont = {" +
@@ -79,14 +69,16 @@
 					"};" +
 					"calleeValue_" + level + ".body(capturedCont)" +
 				"})", level + 1);
-				break;
 			default:
 				console.warn('Unsupported special form', e.type);
 		}
 	}
 
-	function _tr(e, cont) {
-		return tr(e, cont || 'window.z = ', 0);
+	function _tr(e) {
+		return "'use strict'; " +
+			"var _evResult;" +
+			tr(e, "_evResult = ", 0) + ";" +
+			"return _evResult;";
 	}
 
 	if (!window.cps) { window.cps = {}; }
