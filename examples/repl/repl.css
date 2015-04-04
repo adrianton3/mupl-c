@@ -1,3 +1,7 @@
+body {
+    font-family: sans-serif;
+}
+
 .container {
     border-left: 1px solid #000000;
     border-right: 1px solid #000000;
@@ -34,4 +38,10 @@ html, body {
 
 #out {
     margin-top: 32px;
+}
+
+.help {
+    font-size: small;
+    padding-left: 32px;
+    color: #333;
 }
