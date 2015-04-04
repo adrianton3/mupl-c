@@ -56,6 +56,10 @@
 			expect(tr('(let ((a 123)) a)')).toEqual(123);
 		});
 
+		it('can bind to "unsafe" identifiers', function () {
+			expect(tr('(let ((* 123)) *)')).toEqual(123);
+		});
+
 		it('(let ((a 123) (a 456)) a)', function () {
 			expect(tr('(let ((a 123) (a 456)) a)')).toEqual(456);
 		});
