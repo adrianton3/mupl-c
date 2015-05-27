@@ -47,8 +47,9 @@
 				return "$thunk = function () {" +
 						tr(e.e, "(function ($eValue_" + level + ") {" +
 							"(function (" + encodeIdentifier(e.name) + ") {" +
-							// $thunk
-								tr(e.body, cont, level + 1) +
+								"$thunk = function () {" +
+									tr(e.body, cont, level + 1) +
+								"};" +
 							"})($eValue_" + level + ")" +
 						"})", level + 1) +
 					"};";
