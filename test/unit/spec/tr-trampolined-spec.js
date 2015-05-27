@@ -7,7 +7,7 @@
 		var tokens = tokenizer(str);
 		var tree = espace.Parser.parse(tokens);
 		var ast = cps.buildAst(tree);
-		var source = window.cps.trTrampolined(ast);
+		var source = window.cps.trT(ast);
 		return new Function(source)();
 	};
 

@@ -126,5 +126,5 @@
 	}
 
 	if (!window.cps) { window.cps = {}; }
-	window.cps.trTrampolined = _tr;
+	window.cps.trT = _tr;
 })();
