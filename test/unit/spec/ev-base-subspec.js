@@ -106,5 +106,5 @@
 
     window.cpsTest = window.cpsTest || {};
     window.cpsTest.subspecs = window.cpsTest.subspecs || {};
-    window.cpsTest.subspecs.base = base;
+    window.cpsTest.subspecs.evBase = base;
 })();
