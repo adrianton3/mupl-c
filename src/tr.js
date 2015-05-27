@@ -16,7 +16,7 @@
 					"} else {" +
 						tr(e.e2, cont, level + 1) +
 					"}" +
-				"})");
+				"})", level + 1);
 			case '+':
 				return tr(e.e1, "(function ($e1Value_" + level + ") {" +
 					tr(e.e2, "(function ($e2Value_" + level + ") {" +
@@ -34,12 +34,12 @@
 					"(function (" + encodeIdentifier(e.name) + ") {" +
 						tr(e.body, cont, level + 1) +
 					"})($eValue_" + level + ")" +
-				"})");
+				"})", level + 1);
 			case 'set!':
 				return tr(e.e, "(function ($eValue_" + level + ") {" +
 					encodeIdentifier(e.name) + " = $eValue_" + level + ";" +
 					tr(e.body, cont, level + 1) +
-				"})");
+				"})", level + 1);
 			case 'lambda':
 				return cont + "({" +
 					"type: 'closure'," +

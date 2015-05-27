@@ -50,7 +50,7 @@
 							// $thunk
 								tr(e.body, cont, level + 1) +
 							"})($eValue_" + level + ")" +
-						"})") +
+						"})", level + 1) +
 					"};";
 			case 'set!':
 				return "$thunk = function () {" +
@@ -59,7 +59,7 @@
 							"$thunk = function () {" +
 								tr(e.body, cont, level + 1) +
 							"};" +
-						"})") +
+						"})", level + 1) +
 					"};";
 			case 'lambda':
 				return cont + "({" +
