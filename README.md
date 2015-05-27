@@ -9,6 +9,9 @@ Try it [here](http://adrianton3.github.io/mupl-c/examples/repl/repl.html)!
 *src/ev-trampolined.js* is the same as the previous except that function calls do not grow the control context<br>
 *src/ev-lazy-trampolined.js* is the same as the previous except that bindings are lazy (and computed only when used)
 
+*src/tr.js* is a basic transpiler (to JavaScript) that outputs code written in CPS<br>
+*src/tr-trampolined.js* is the same as the previous except that function calls do not grow the control context<br>
+
 ###Language
 
   + `(+ a b)` addition
