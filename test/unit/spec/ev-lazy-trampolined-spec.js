@@ -17,7 +17,7 @@
 			jasmine.addMatchers(cpsTest.customMatchers);
 		});
 
-		cpsTest.subspecs.base(ev);
+		cpsTest.subspecs.evBase(ev);
 
 		it('has no bound for the call stack', function () {
 			var cont0 = ev('((fun count (n) ' +

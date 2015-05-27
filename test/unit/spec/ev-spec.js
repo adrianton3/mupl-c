@@ -17,6 +17,6 @@
 			jasmine.addMatchers(cpsTest.customMatchers);
 		});
 
-		cpsTest.subspecs.base(ev);
+		cpsTest.subspecs.evBase(ev);
 	});
 })();
