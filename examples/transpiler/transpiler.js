@@ -46,7 +46,7 @@
 		var ast = getAst(this.value);
 		if (ast) {
 			var rawJs = cps.trT(ast);
-			var prettyJs = js_beautify(rawJs);
+			var prettyJs = js_beautify(rawJs, { indent_size: 2 });
 			outTextarea.value = prettyJs;
 		}
 	});
