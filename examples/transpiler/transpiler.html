@@ -7,9 +7,24 @@
 </head>
 <body>
     <div class="container">
-        <textarea id="in" cols="80" rows="6"></textarea>
-        <div id="status">...</div>
         <textarea id="out" cols="80" rows="24" readonly></textarea>
+        <div id="status">...</div>
+        <textarea id="in" cols="80" rows="6"></textarea>
+
+        <div class="help">
+            <p>Cheatsheet
+            <pre><code>(+ a b)
+(- a b)
+($+ a b)    ;for debugging only
+($- a b)    ;for debugging only
+(if cond then else)
+(let ((name exp)...) body)
+(set! var exp body)
+(lambda (param...) body)
+(fun name (param...) body)
+(callee param...)
+(call/cc callee)</code></pre></p>
+        </div>
     </div>
 
     <script src="../lib/beautify.js"></script>

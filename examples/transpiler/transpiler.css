@@ -24,7 +24,7 @@ textarea {
     border: 1px solid #bbbbbb;
 }
 
-#in {
+#out {
     margin-top: 32px;
 }
 
@@ -35,4 +35,10 @@ textarea {
 
 #status {
     padding-left: 32px;
+}
+
+.help {
+    font-size: small;
+    padding-left: 32px;
+    color: #333;
 }
