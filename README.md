@@ -3,7 +3,8 @@ mupl-c
 
 *Made Up Programming Language with Continuations* is a simple, educational, scheme-like language.
 
-Try it [here](http://adrianton3.github.io/mupl-c/examples/repl/repl.html)!
+Try the interpreter [here](http://adrianton3.github.io/mupl-c/examples/repl/repl.html)!
+...and the transpiler [here](http://adrianton3.github.io/mupl-c/examples/transpiler/transpiler.html)!
 
 *src/ev.js* is a basic interpreter written in CPS<br>
 *src/ev-trampolined.js* is the same as the previous except that function calls do not grow the control context<br>
