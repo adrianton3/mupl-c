@@ -1,0 +1,36 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: sans-serif;
+}
+
+.container {
+    border-left: 1px solid lightgray;
+    border-right: 1px solid lightgray;
+    width: 800px;
+    position: relative;
+    margin: auto;
+    height: 100%;
+    overflow: hidden;
+}
+
+.help {
+    font-size: small;
+    padding-left: 32px;
+    color: #222;
+}
+
+#out-editor {
+    margin: 20px auto 20px auto;
+    width: 600px;
+    height: 300px;
+    border: 1px solid lightgray;
+}
+
+#in-editor {
+    width: 600px;
+    height: 96px;
+    margin: 10px auto 40px auto;
+    border: 1px solid lightgray;
+}
