@@ -1,23 +1,17 @@
 (function () {
 	'use strict';
 
-	var statusDiv = document.getElementById('status');
-
-	var failed;
 	function ok() {
-		if (failed) {
-			statusDiv.classList.remove('err');
-			statusDiv.innerText = '...';
-		}
-		failed = false;
+		editors.inEditor.getSession().setAnnotations([]);
 	}
 
-	function err(e) {
-		console.log(e.coords);
-		if (!failed) { statusDiv.classList.add('err'); }
-		statusDiv.innerText = e;
-
-		failed = true;
+	function err(ex) {
+		var line = ex.coords ? ex.coords.line - 1 : 0;
+		editors.inEditor.getSession().setAnnotations([{
+			row: line,
+			text: ex.message,
+			type: 'error'
+		}]);
 	}
 
 
@@ -43,15 +37,17 @@
 
 	function setupEditors(options) {
 		var inEditor = ace.edit('in-editor');
-		inEditor.setTheme('ace/theme/github');
+		inEditor.setTheme('ace/theme/dawn');
 		inEditor.setFontSize(options.fontSize);
 		inEditor.on('input', options.onInput);
+		inEditor.$blockScrolling = Infinity;
 
 		var outEditor = ace.edit('out-editor');
-		outEditor.setTheme('ace/theme/github');
+		outEditor.setTheme('ace/theme/dawn');
 		outEditor.getSession().setMode('ace/mode/javascript');
 		outEditor.setFontSize(options.fontSize);
 		outEditor.setReadOnly(true);
+		outEditor.getSession().setUseWorker(false);
 		outEditor.$blockScrolling = Infinity;
 
 		return {
