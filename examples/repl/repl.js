@@ -1,25 +1,19 @@
 (function () {
 	'use strict';
 
-	var inTextarea = document.getElementById('in');
-	var outTextarea = document.getElementById('out');
-	var statusDiv = document.getElementById('status');
-
-	var failed;
 	function ok() {
-		if (failed) {
-			statusDiv.classList.remove('err');
-			statusDiv.innerText = '...';
-		}
-		failed = false;
+		editors.inEditor.getSession().setAnnotations([]);
 	}
 
-	function err(e) {
-		if (!failed) { statusDiv.classList.add('err'); }
-		statusDiv.innerText = e;
-
-		failed = true;
+	function err(ex) {
+		var line = ex.coords ? ex.coords.line - 1 : 0;
+		editors.inEditor.getSession().setAnnotations([{
+			row: line,
+			text: ex.message,
+			type: 'error'
+		}]);
 	}
+
 
 	var ast;
 	var tokenizer = espace.Tokenizer();
@@ -43,16 +37,23 @@
 	}
 
 	function doEval() {
+		if (!ast) { return; }
+
+		var previous = editors.outEditor.getValue();
+
 		try {
 			var result;
 			cps.evT(ast, function (_result) { result = _result; });
-			outTextarea.value = outTextarea.value + '> ' + result + '\n\n';
+			editors.outEditor.setValue(previous + '> ' + result + '\n\n', 1);
 		} catch (ex) {
-			outTextarea.value = outTextarea.value + ex + '\n\n';
+			editors.outEditor.setValue(previous + ex + '\n\n', 1);
 		}
-		outTextarea.scrollTop = outTextarea.scrollHeight;
 
-		inTextarea.value = '';
+		editors.outEditor.scrollToLine(
+			editors.outEditor.getSession().getLength()
+		);
+
+		editors.inEditor.setValue('', 1);
 	}
 
 	var history = (function () {
@@ -69,12 +70,12 @@
 
 		function up() {
 			if (cursor > 0) { cursor--; }
-			inTextarea.value = log[cursor] || '';
+			editors.inEditor.setValue(log[cursor] || '', 1);
 		}
 
 		function down() {
 			if (cursor < log.length - 1) { cursor++; }
-			inTextarea.value = log[cursor] || '';
+			editors.inEditor.setValue(log[cursor] || '', 1);
 		}
 
 		return {
@@ -84,26 +85,54 @@
 		}
 	})();
 
-	inTextarea.addEventListener('keydown', function (ev) {
-		if (ev.which === 13 && !ev.shiftKey) {
-			if (!ast) {
-				ast = getAst(this.value);
+	function setupEditors(options) {
+		var inEditor = ace.edit('in-editor');
+		inEditor.setTheme('ace/theme/dawn');
+		inEditor.setFontSize(options.fontSize);
+		inEditor.on('input', options.onInput);
+		inEditor.$blockScrolling = Infinity;
+
+		var outEditor = ace.edit('out-editor');
+		outEditor.setTheme('ace/theme/dawn');
+		outEditor.setFontSize(options.fontSize);
+		outEditor.setReadOnly(true);
+		outEditor.getSession().setUseWorker(false);
+		outEditor.$blockScrolling = Infinity;
+
+		inEditor.commands.addCommand({
+			name: 'eval',
+			bindKey: { win: 'Enter', mac: 'Enter' },
+			exec: function () {
+				history.add(inEditor.getValue());
+				doEval();
 			}
-			history.add(this.value);
-			doEval();
-			ev.preventDefault();
-		} else if (ev.which === 38 && ev.ctrlKey) {
-			history.up();
-			ev.preventDefault();
-		} else if (ev.which === 40 && ev.ctrlKey) {
-			history.down();
-			ev.preventDefault();
-		} else {
-			ast = getAst(this.value);
+		});
+
+		inEditor.commands.addCommand({
+			name: 'history-up',
+			bindKey: { win: 'Ctrl+Up', mac: 'Command+Up' },
+			exec: history.up
+		});
+
+		inEditor.commands.addCommand({
+			name: 'history-down',
+			bindKey: { win: 'Ctrl+Down', mac: 'Command+Down' },
+			exec: history.down
+		});
+
+		return {
+			inEditor: inEditor,
+			outEditor: outEditor
+		};
+	}
+
+	var editors = setupEditors({
+		fontSize: 16,
+		onInput: function () {
+			var code = editors.inEditor.getValue();
+			ast = getAst(code);
 		}
 	});
 
-	inTextarea.addEventListener('keyup', function (ev) {
-		ast = getAst(this.value);
-	});
+	editors.outEditor.setValue('========\n mupl-c\n========\n\n', -1);
 })();
