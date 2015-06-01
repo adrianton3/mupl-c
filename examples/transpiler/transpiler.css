@@ -6,26 +6,13 @@ html, body {
 }
 
 .container {
-    border-left: 1px solid #000000;
-    border-right: 1px solid #000000;
+    border-left: 1px solid lightgray;
+    border-right: 1px solid lightgray;
     width: 800px;
     position: relative;
     margin: auto;
     height: 100%;
     overflow: hidden;
-}
-
-textarea {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #bbbbbb;
-}
-
-#out {
-    margin-top: 32px;
 }
 
 .err {
@@ -40,5 +27,19 @@ textarea {
 .help {
     font-size: small;
     padding-left: 32px;
-    color: #333;
+    color: #222;
+}
+
+#out-editor {
+    margin: 32px auto 10px auto;
+    width: 600px;
+    height: 300px;
+    border: 1px solid lightgray;
+}
+
+#in-editor {
+    width: 600px;
+    height: 126px;
+    margin: 10px auto 40px auto;
+    border: 1px solid lightgray;
 }
