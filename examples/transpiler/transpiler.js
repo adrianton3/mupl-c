@@ -70,4 +70,6 @@
 	});
 
 	editors.inEditor.setValue('(if 1 2 3)', 1);
+
+	window.setupExamples('examples', editors.inEditor);
 })();
