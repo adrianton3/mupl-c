@@ -17,8 +17,12 @@ html, body {
 
 .help {
     font-size: small;
-    padding-left: 32px;
+    padding-left: 98px;
     color: #222;
+}
+
+code {
+    font-family: 'Consolas', 'Monaco', 'Menlo', 'Inconsolata', 'Source Code Pro', monospace;
 }
 
 #out-editor {
@@ -33,4 +37,13 @@ html, body {
     height: 96px;
     margin: 10px auto 40px auto;
     border: 1px solid lightgray;
+}
+
+.example {
+    padding: 2px;
+    text-decoration: underline;
+}
+
+.example:hover {
+    color: #1a8cff;
 }

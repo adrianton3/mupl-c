@@ -135,4 +135,6 @@
 	});
 
 	editors.outEditor.setValue('========\n mupl-c\n========\n\n', -1);
+
+	window.setupExamples('examples', editors.inEditor);
 })();
